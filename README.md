@@ -1,20 +1,276 @@
 ---
-title: Tesla Cybertruck Support
-emoji: 🚀
-colorFrom: red
-colorTo: red
-sdk: docker
-app_port: 8501
-tags:
-- streamlit
+title: Tesla Cybertruck Customer Support System
+emoji: 🤖
+colorFrom: blue
+colorTo: green
+sdk: streamlit
+sdk_version: 1.28.0
+app_file: app.py
 pinned: false
-short_description: Tesla Cybertruck Support System
-license: mit
 ---
 
-# Welcome to Streamlit!
 
-Edit `/src/streamlit_app.py` to customize this app to your heart's desire. :heart:
+# Tesla Cybertruck Customer Support System
 
-If you have any questions, checkout our [documentation](https://docs.streamlit.io) and [community
-forums](https://discuss.streamlit.io).
+A production-ready RAG (Retrieval-Augmented Generation) based customer support chatbot for Tesla Cybertruck documentation. Built with OpenAI GPT-4, ChromaDB, and Streamlit.
+
+## 🚀 Features
+
+- **Intelligent Q&A**: Ask questions about Tesla Cybertruck and get accurate answers from official documentation
+- **Source Citations**: Every answer includes document name and page number references
+- **Support Tickets**: Create support tickets via GitHub Issues when answers aren't found
+- **Conversation History**: Maintains context across multiple questions
+- **Function Calling**: Uses OpenAI's function calling for ticket creation
+- **Vector Search**: Fast semantic search using ChromaDB and sentence transformers
+
+## 📋 Requirements
+
+- Python 3.10+
+- OpenAI API Key
+- GitHub Personal Access Token (for ticket creation)
+- GitHub Repository (for issue tracking)
+
+## 🛠️ Installation
+
+### 1. Clone the Repository
+
+```bash
+git clone git@github.com:mashkhurbek-mashrabov/masters-ai.git
+cd masters-ai/rag-customer-support-system
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure Environment Variables
+
+Create a `.env` file in the project root with at least:
+
+```env
+OPENAI_API_KEY=sk-your-openai-api-key
+OPENAI_MODEL=gpt-4.1-mini
+TEMPERATURE=0.7
+MAX_TOKENS=1000
+
+GITHUB_TOKEN=ghp_your-github-token
+GITHUB_REPO=your-username/your-repo
+
+COMPANY_NAME=Tesla Cybertruck Support
+COMPANY_EMAIL=support@cybertruck-support.com
+COMPANY_PHONE=+1-800-TESLA-CT
+
+CHUNK_SIZE=500
+CHUNK_OVERLAP=50
+TOP_K_RESULTS=3
+
+DATASOURCE_DIR=datasource
+VECTOR_DB_PATH=chroma_db
+```
+
+- **OpenAI API Key**: Get from `https://platform.openai.com/api-keys`
+- **GitHub Token**: Create at `https://github.com/settings/tokens` with `repo` scope
+
+### 4. Index Documents
+
+Process and index the PDF documents:
+
+```bash
+python scripts/index_documents.py
+```
+
+This will:
+- Extract text from all PDFs in the `datasource/` folder
+- Create chunks with metadata (filename, page number)
+- Generate embeddings and store in ChromaDB
+- Create a persistent vector database in `chroma_db/`
+
+## 🚀 Running Locally
+
+Start the Streamlit application:
+
+```bash
+streamlit run app.py
+```
+
+The app will open in your browser at `http://localhost:8501`
+
+## 📁 Project Structure
+
+```
+rag/
+├── app.py                          # Main Streamlit application
+├── config.py                       # Configuration and constants
+├── requirements.txt                # Python dependencies
+├── .env.example                    # Environment variables template
+├── .gitignore                      # Git ignore rules
+├── README.md                       # This file
+├── datasource/                     # PDF documents
+│   ├── tesla_cybertruck_owners_manual.pdf
+│   ├── cybertruck_offroad_guide.pdf
+│   └── Tesla-Cybertruck-Electrek-2021.pdf
+├── src/                            # Source code
+│   ├── document_processor.py      # PDF processing and chunking
+│   ├── vector_store.py            # ChromaDB integration
+│   ├── ticket_manager.py          # GitHub Issues API
+│   └── rag_engine.py              # Main RAG logic
+├── scripts/                        # Utility scripts
+│   └── index_documents.py         # Document indexing script
+└── chroma_db/                      # Vector database (created after indexing)
+```
+
+## 🎯 Usage
+
+### Asking Questions
+
+Simply type your question in the chat interface:
+
+- "How do I charge the Cybertruck?"
+- "What is the towing capacity?"
+- "How do I enable autopilot?"
+
+The system will:
+1. Search relevant documentation
+2. Generate an answer with GPT-4
+3. Provide source citations (filename and page number)
+
+### Creating Support Tickets
+
+If the answer isn't in the documentation, you can create a ticket:
+
+1. Ask: "I need help with battery issues"
+2. The system will ask for your details
+3. Provide: name, email, and description
+4. A GitHub Issue will be created automatically
+
+Or explicitly request: "Create a support ticket about [your issue]"
+
+## 🌐 Deploying to HuggingFace Spaces
+
+### 1. Create a New Space
+
+1. Go to [HuggingFace Spaces](https://huggingface.co/spaces)
+2. Click "Create new Space"
+3. Choose:
+   - **SDK**: Streamlit
+   - **Hardware**: CPU Basic (free tier)
+
+### 2. Push Code to Space
+
+```bash
+# Add HuggingFace remote
+git remote add hf https://huggingface.co/spaces/mashkhurbek/tesla-cybertruck-support
+
+# Push code
+git add .
+git commit -m "Initial commit"
+git push hf main
+```
+
+### 3. Configure Secrets
+
+In your Space settings, add these secrets:
+
+- `OPENAI_API_KEY`: Your OpenAI API key
+- `GITHUB_TOKEN`: Your GitHub personal access token
+- `GITHUB_REPO`: Your repository name (e.g., `username/repo`)
+
+### 4. Index Documents
+
+After deployment, you'll need to run the indexing script once:
+
+1. Use the HuggingFace Space terminal or
+2. Run locally and commit the `chroma_db/` folder (not recommended for large databases)
+
+**Note**: For production, consider using a persistent storage solution or re-indexing on startup.
+
+## 🧪 Testing
+
+Test the system with these example queries:
+
+1. **Basic Question**: "What is the range of the Cybertruck?"
+2. **Technical Question**: "How do I perform a software update?"
+3. **Ticket Creation**: "Create a support ticket about charging issues"
+4. **Follow-up**: Ask related questions to test conversation history
+
+## 📊 Technical Details
+
+### RAG Pipeline
+
+1. **Document Processing**:
+   - PDFs loaded with PyMuPDF
+   - Text extracted page-by-page
+   - Chunked into ~500 tokens with 50 token overlap
+
+2. **Vector Storage**:
+   - Embeddings: `all-MiniLM-L6-v2` (384 dimensions)
+   - Database: ChromaDB (persistent)
+   - Metadata: filename, page number, chunk ID
+
+3. **Retrieval**:
+   - Semantic search with top-k=3
+   - Results ranked by cosine similarity
+
+4. **Generation**:
+   - Model: GPT-4 Turbo
+   - Function calling for ticket creation
+   - Context window: last 10 messages
+
+### Function Calling
+
+The system uses OpenAI's function calling feature:
+
+```python
+{
+  "name": "create_support_ticket",
+  "parameters": {
+    "user_name": "string",
+    "user_email": "string",
+    "title": "string",
+    "description": "string"
+  }
+}
+```
+
+## 🔧 Configuration
+
+Edit `config.py` or `.env` to customize:
+
+- **Model**: Change `OPENAI_MODEL` (default: gpt-4-turbo-preview)
+- **Temperature**: Adjust `TEMPERATURE` (default: 0.7)
+- **Chunk Size**: Modify `CHUNK_SIZE` (default: 500)
+- **Top-K Results**: Change `TOP_K_RESULTS` (default: 3)
+
+## 📝 Data Sources
+
+The system uses 3 PDF documents:
+
+1. **tesla_cybertruck_owners_manual.pdf** (323 pages)
+2. **cybertruck_offroad_guide.pdf** (22 pages)
+3. **Tesla-Cybertruck-Electrek-2021.pdf** (54 pages)
+
+**Total**: 399 pages of documentation
+
+## 🤝 Contributing
+
+This project is intended for educational use. Feel free to fork and extend.
+
+## 📄 License
+
+MIT License - feel free to use for educational purposes.
+
+## 🙏 Acknowledgments
+
+- OpenAI for GPT-4 and embeddings
+- ChromaDB for vector storage
+- Streamlit for the UI framework
+- Tesla for the Cybertruck documentation
+
+## 📧 Support
+
+For issues or questions:
+- Email: support@cybertruck-support.com
+- Phone: +1-800-TESLA-CT
+- GitHub Issues: Create a ticket in this repository

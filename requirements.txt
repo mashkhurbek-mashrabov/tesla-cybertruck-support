@@ -1,3 +1,14 @@
-altair
-pandas
-streamlit
+streamlit==1.31.0
+openai>=1.59.0,<3.0.0
+chromadb==0.4.22
+sentence-transformers==2.3.1
+pymupdf==1.23.21
+python-dotenv==1.0.1
+requests==2.31.0
+tiktoken==0.6.0
+numpy==1.26.3
+langchain
+langchain-community
+langchain-openai
+pydanticy
+
